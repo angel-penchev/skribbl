@@ -1,5 +1,6 @@
 package com.tsb.skribbl.model;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class User {
@@ -7,8 +8,8 @@ public class User {
     private final String username;
     private int score;
 
-    public User(UUID userId, String username) {
-        this.userId = userId;
+    public User(String username) {
+        this.userId = UUID.randomUUID();
         this.username = username;
         this.score = 0;
     }
@@ -31,5 +32,18 @@ public class User {
 
     public void resetScore() {
         this.score = 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return userId.equals(user.userId) && Objects.equals(username, user.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, username);
     }
 }
