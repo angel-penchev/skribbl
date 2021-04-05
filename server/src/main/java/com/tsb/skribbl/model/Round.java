@@ -10,16 +10,14 @@ public class Round {
     private final long startedAt;
     private final long timeToDraw;
     private final String word;
-    private final ArrayList<User> users;
-    private final Hashtable<UUID, Integer> userScores;
+    private final Hashtable<UUID, Integer> roundUserScores;
 
     public Round(long roundId, long timeToDraw, ArrayList<String> words, ArrayList<User> users) {
         this.roundId = roundId;
         this.startedAt = java.time.Instant.now().getEpochSecond();
         this.timeToDraw = timeToDraw;
         this.word = this.pickRandomWord(words);
-        this.users = users;
-        this.userScores = this.initUserScoresTable(users);
+        this.roundUserScores = this.initRoundUserScoresTable(users);
     }
 
     private String pickRandomWord(ArrayList<String> words) {
@@ -27,12 +25,12 @@ public class Round {
         return words.get(rand.nextInt(words.size()));
     }
 
-    private Hashtable<UUID, Integer> initUserScoresTable(ArrayList<User> users) {
-        Hashtable<UUID, Integer> userHasGuessed = new Hashtable<>();
+    private Hashtable<UUID, Integer> initRoundUserScoresTable(ArrayList<User> users) {
+        Hashtable<UUID, Integer> roundUserScores = new Hashtable<>();
         for (User user : users) {
-            userHasGuessed.put(user.getUserId(), 0);
+            roundUserScores.put(user.getUserId(), 0);
         }
-        return userHasGuessed;
+        return roundUserScores;
     }
 
     public boolean makeGuess(UUID userId, String guess) {
@@ -42,19 +40,27 @@ public class Round {
             return false;
         }
 
-        int score = (int) (java.time.Instant.now().getEpochSecond() - this.startedAt);
-        this.userScores.replace(userId, score);
+        int score = (int) (this.getEndsAt() - java.time.Instant.now().getEpochSecond());
+        this.roundUserScores.replace(userId, score);
         return true;
     }
 
     public boolean hasEveryoneGuessed() {
-        for (int userScore : userScores.values()) {
-            if (userScore == 0) return false;
+        for (int roundUserScore : roundUserScores.values()) {
+            if (roundUserScore == 0) return false;
         }
         return true;
     }
 
-    public Hashtable<UUID, Integer> getUserScores() {
-        return userScores;
+    public Hashtable<UUID, Integer> getRoundUserScores() {
+        return roundUserScores;
+    }
+
+    public long getRoundId() {
+        return roundId;
+    }
+
+    public long getEndsAt() {
+        return this.startedAt + this.timeToDraw;
     }
 }
