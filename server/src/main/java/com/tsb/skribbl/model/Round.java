@@ -7,19 +7,18 @@ import java.util.UUID;
 
 public class Round {
     private final long roundId;
-    private final long startedAt;
+    private final long startedAt = java.time.Instant.now().getEpochSecond();
     private final long timeToDraw;
     private final String word;
-    private final ArrayList<DrawingLine> canvas;
-    private final Hashtable<UUID, Integer> roundUserScores;
+    private final ArrayList<DrawingLine> canvas = new ArrayList<>();
+    private final Hashtable<UUID, String> userGuesses = new Hashtable<>();
+    private final Hashtable<UUID, Integer> userScores;
 
     public Round(long roundId, long timeToDraw, ArrayList<String> words, ArrayList<User> users) {
         this.roundId = roundId;
-        this.startedAt = java.time.Instant.now().getEpochSecond();
         this.timeToDraw = timeToDraw;
         this.word = this.pickRandomWord(words);
-        this.canvas = new ArrayList<>();
-        this.roundUserScores = this.initRoundUserScoresTable(users);
+        this.userScores = this.initUserScoresTable(users);
     }
 
     private String pickRandomWord(ArrayList<String> words) {
@@ -27,12 +26,12 @@ public class Round {
         return words.get(rand.nextInt(words.size()));
     }
 
-    private Hashtable<UUID, Integer> initRoundUserScoresTable(ArrayList<User> users) {
-        Hashtable<UUID, Integer> roundUserScores = new Hashtable<>();
+    private Hashtable<UUID, Integer> initUserScoresTable(ArrayList<User> users) {
+        Hashtable<UUID, Integer> userScores = new Hashtable<>();
         for (User user : users) {
-            roundUserScores.put(user.getUserId(), 0);
+            userScores.put(user.getUserId(), 0);
         }
-        return roundUserScores;
+        return userScores;
     }
 
     public void addDrawingLineToCanvas(DrawingLine drawingLine) {
@@ -40,26 +39,23 @@ public class Round {
     }
 
     public boolean makeGuess(UUID userId, String guess) {
-        boolean isCorrectGuess = this.word.equals(guess);
+        userGuesses.put(userId, guess);
 
+        boolean isCorrectGuess = this.word.equals(guess);
         if (!isCorrectGuess) {
             return false;
         }
 
         int score = (int) (this.getEndsAt() - java.time.Instant.now().getEpochSecond());
-        this.roundUserScores.replace(userId, score);
+        this.userScores.replace(userId, score);
         return true;
     }
 
     public boolean hasEveryoneGuessed() {
-        for (int roundUserScore : roundUserScores.values()) {
+        for (int roundUserScore : userScores.values()) {
             if (roundUserScore == 0) return false;
         }
         return true;
-    }
-
-    public Hashtable<UUID, Integer> getRoundUserScores() {
-        return roundUserScores;
     }
 
     public long getRoundId() {
@@ -84,5 +80,13 @@ public class Round {
 
     public ArrayList<DrawingLine> getCanvas() {
         return canvas;
+    }
+
+    public Hashtable<UUID, String> getUserGuesses() {
+        return userGuesses;
+    }
+
+    public Hashtable<UUID, Integer> getUserScores() {
+        return userScores;
     }
 }
