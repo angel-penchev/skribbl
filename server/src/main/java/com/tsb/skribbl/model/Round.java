@@ -10,6 +10,7 @@ public class Round {
     private final long startedAt;
     private final long timeToDraw;
     private final String word;
+    private final ArrayList<DrawingLine> canvas;
     private final Hashtable<UUID, Integer> roundUserScores;
 
     public Round(long roundId, long timeToDraw, ArrayList<String> words, ArrayList<User> users) {
@@ -17,6 +18,7 @@ public class Round {
         this.startedAt = java.time.Instant.now().getEpochSecond();
         this.timeToDraw = timeToDraw;
         this.word = this.pickRandomWord(words);
+        this.canvas = new ArrayList<>();
         this.roundUserScores = this.initRoundUserScoresTable(users);
     }
 
@@ -31,6 +33,10 @@ public class Round {
             roundUserScores.put(user.getUserId(), 0);
         }
         return roundUserScores;
+    }
+
+    public void addDrawingLineToCanvas(DrawingLine drawingLine) {
+        this.canvas.add(drawingLine);
     }
 
     public boolean makeGuess(UUID userId, String guess) {
@@ -62,5 +68,21 @@ public class Round {
 
     public long getEndsAt() {
         return this.startedAt + this.timeToDraw;
+    }
+
+    public long getStartedAt() {
+        return startedAt;
+    }
+
+    public long getTimeToDraw() {
+        return timeToDraw;
+    }
+
+    public String getWord() {
+        return word;
+    }
+
+    public ArrayList<DrawingLine> getCanvas() {
+        return canvas;
     }
 }
