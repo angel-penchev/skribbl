@@ -1,5 +1,8 @@
 package com.tsb.skribbl.model;
 
+import com.tsb.skribbl.exception.GameHasAlreadyStarted;
+import com.tsb.skribbl.exception.GameHasNotAlreadyStarted;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -7,46 +10,79 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Room {
-    private final UUID roomId;
-    private final ArrayList<User> users;
+    private final UUID roomId = UUID.randomUUID();
+    private final ArrayList<User> users = new ArrayList<>();
     private final ArrayList<String> words;
-    private boolean isGameStarted;
-    private Round round;
-    private long currentRoundId;
-    private final Hashtable<UUID, Integer> roomUserScores;
+    private final long timeToDraw;
+    private final int userLimit;
+    private final int roundLimit;
+    private boolean isGameStarted = false;
+    private Round round = null;
+    private int roundId = 0;
+    private final Hashtable<UUID, Integer> userScores = new Hashtable<>();
 
-    public Room(ArrayList<String> words) {
-        this.roomId = UUID.randomUUID();
-        this.users = new ArrayList<>();
+    public Room(ArrayList<String> words, long timeToDraw, int userLimit, int roundLimit) {
         this.words = words;
-        this.isGameStarted = false;
-        this.currentRoundId = 0;
-        this.roomUserScores = new Hashtable<>();
+        this.timeToDraw = timeToDraw;
+        this.userLimit = userLimit;
+        this.roundLimit = roundLimit;
     }
 
-    private void updateRoomUserScoresTable(ArrayList<User> users) {
+    private void updateScoresFromUserScores() {
         // Updates all existing user scores and adds new entries for users who just joined
-        for (User user : users) {
-            if (!this.roomUserScores.contains(user.getUserId())) {
-                this.roomUserScores.put(user.getUserId(), 0);
+        for (User user : this.users) {
+            if (!this.userScores.contains(user.getUserId())) {
+                this.userScores.put(user.getUserId(), 0);
             } else {
-                int currentScore = this.roomUserScores.get(user.getUserId());
-                int roundScore = this.round.getRoundUserScores().get(user.getUserId());
-                this.roomUserScores.replace(user.getUserId(), currentScore + roundScore);
+                int currentScore = this.userScores.get(user.getUserId());
+                int roundScore = this.round.getUserScores().get(user.getUserId());
+                this.userScores.replace(user.getUserId(), currentScore + roundScore);
             }
         }
+    }
 
+    private void removeDisconnectedUsersFromUserScores() {
         // Removing scores for all disconnected users
         List<UUID> currentUserIds = this.users.stream().map(User::getUserId).collect(Collectors.toList());
-        for (UUID userId : roomUserScores.keySet()) {
+        for (UUID userId : userScores.keySet()) {
             if (!currentUserIds.contains(userId)) {
-                this.roomUserScores.remove(userId);
+                this.userScores.remove(userId);
             }
         }
+    }
+
+    public void startGame() throws GameHasAlreadyStarted {
+        if (isGameStarted) {
+            throw new GameHasAlreadyStarted();
+        }
+        this.updateScoresFromUserScores();
+        this.startRound();
+        isGameStarted = true;
+    }
+
+    public void endGame() throws GameHasNotAlreadyStarted {
+        if (!isGameStarted) {
+            throw new GameHasNotAlreadyStarted();
+        }
+        isGameStarted = false;
+    }
+
+    public void startRound() {
+        this.removeDisconnectedUsersFromUserScores();
+        this.round = new Round(++this.roundId, this.timeToDraw, this.words, this.users);
+    }
+
+    public void endRound() {
+        this.updateScoresFromUserScores();
+        this.round = null;
     }
 
     public UUID getRoomId() {
         return roomId;
+    }
+
+    public boolean isFull() {
+        return this.users.size() == this.userLimit;
     }
 
     public void addUser(User user) {

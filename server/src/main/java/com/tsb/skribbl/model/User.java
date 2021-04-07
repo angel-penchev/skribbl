@@ -11,7 +11,6 @@ public class User {
     public User(String username) {
         this.userId = UUID.randomUUID();
         this.username = username;
-        this.score = 0;
     }
 
     public UUID getUserId() {
@@ -20,18 +19,6 @@ public class User {
 
     public String getUsername() {
         return username;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public void increaseScore(int score) {
-        this.score += score;
-    }
-
-    public void resetScore() {
-        this.score = 0;
     }
 
     @Override
