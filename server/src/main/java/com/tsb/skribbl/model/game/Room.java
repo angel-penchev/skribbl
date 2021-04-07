@@ -1,7 +1,7 @@
 package com.tsb.skribbl.model.game;
 
-import com.tsb.skribbl.exception.GameHasAlreadyStarted;
-import com.tsb.skribbl.exception.GameHasNotAlreadyStarted;
+import com.tsb.skribbl.exception.GameHasAlreadyStartedException;
+import com.tsb.skribbl.exception.GameHasNotAlreadyStartedException;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -51,18 +51,18 @@ public class Room {
         }
     }
 
-    public void startGame() throws GameHasAlreadyStarted {
+    public void startGame() throws GameHasAlreadyStartedException {
         if (isGameStarted) {
-            throw new GameHasAlreadyStarted();
+            throw new GameHasAlreadyStartedException();
         }
         this.updateScoresFromUserScores();
         this.startRound();
         isGameStarted = true;
     }
 
-    public void endGame() throws GameHasNotAlreadyStarted {
+    public void endGame() throws GameHasNotAlreadyStartedException {
         if (!isGameStarted) {
-            throw new GameHasNotAlreadyStarted();
+            throw new GameHasNotAlreadyStartedException();
         }
         isGameStarted = false;
     }
