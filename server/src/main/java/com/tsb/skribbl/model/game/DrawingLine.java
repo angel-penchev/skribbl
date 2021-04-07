@@ -1,4 +1,4 @@
-package com.tsb.skribbl.model;
+package com.tsb.skribbl.model.game;
 
 public class DrawingLine {
     private final float startX;

@@ -1,4 +1,4 @@
-package com.tsb.skribbl.model;
+package com.tsb.skribbl.model.game;
 
 import com.tsb.skribbl.exception.GameHasAlreadyStarted;
 import com.tsb.skribbl.exception.GameHasNotAlreadyStarted;

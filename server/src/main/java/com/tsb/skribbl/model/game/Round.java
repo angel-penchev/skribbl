@@ -1,4 +1,4 @@
-package com.tsb.skribbl.model;
+package com.tsb.skribbl.model.game;
 
 import java.util.ArrayList;
 import java.util.Hashtable;

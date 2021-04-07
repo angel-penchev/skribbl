@@ -1,4 +1,4 @@
-package com.tsb.skribbl.model;
+package com.tsb.skribbl.model.game;
 
 import java.util.Objects;
 import java.util.UUID;
