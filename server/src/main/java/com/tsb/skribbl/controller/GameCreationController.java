@@ -1,6 +1,7 @@
 package com.tsb.skribbl.controller;
 
 import com.tsb.skribbl.exception.NoSuchRoomException;
+import com.tsb.skribbl.exception.RoomUserLimitReachedException;
 import com.tsb.skribbl.model.game.Room;
 import com.tsb.skribbl.model.game.User;
 import com.tsb.skribbl.model.message.ConnectionRequestMessage;
@@ -49,7 +50,8 @@ public class GameCreationController {
     @MessageMapping("/connect/{roomId}")
     @SendTo("/topic/room/{roomId}")
     public RoomNotificationMessage connectMapping(
-            ConnectionRequestMessage message, @DestinationVariable String roomId) throws NoSuchRoomException {
+            ConnectionRequestMessage message,
+            @DestinationVariable String roomId) throws NoSuchRoomException, RoomUserLimitReachedException {
         Room room = getRoom(roomId);
         room.addUser(new User(message.getUsername()));
         return new RoomNotificationMessage("connection", String.format("Glad you're here, %s", message.getUsername()));

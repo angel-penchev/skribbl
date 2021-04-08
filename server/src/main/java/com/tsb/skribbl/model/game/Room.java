@@ -2,6 +2,7 @@ package com.tsb.skribbl.model.game;
 
 import com.tsb.skribbl.exception.GameHasAlreadyStartedException;
 import com.tsb.skribbl.exception.GameHasNotAlreadyStartedException;
+import com.tsb.skribbl.exception.RoomUserLimitReachedException;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -85,7 +86,10 @@ public class Room {
         return this.users.size() == this.userLimit;
     }
 
-    public void addUser(User user) {
+    public void addUser(User user) throws RoomUserLimitReachedException {
+        if (this.users.size() < this.userLimit) {
+            throw new RoomUserLimitReachedException();
+        }
         this.users.add(user);
     }
 
