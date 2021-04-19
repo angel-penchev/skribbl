@@ -11,7 +11,7 @@ body {
 }
 
 .container {
-  max-width: 500px;
+  max-width: 550px;
   margin: 30px auto;
   overflow: auto;
   border: 1px solid steelblue;
@@ -32,7 +32,6 @@ body {
   color: #fff;
   border: none;
   padding: 10px 20px;
-  margin: 5px;
   border-radius: 5px;
   cursor: pointer;
   text-decoration: none;
@@ -68,24 +67,8 @@ body {
 .form-control input, .form-control select, .form-control textarea {
   width: 100%;
   height: 40px;
-  margin: 5px;
   padding: 3px 7px;
   font-size: 17px;
-}
-
-.form-control-check {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.form-control-check label {
-  flex: 1;
-}
-
-.form-control-check input {
-  flex: 2;
-  height: 20px;
 }
 
 footer {
