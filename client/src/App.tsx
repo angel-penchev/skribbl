@@ -6,7 +6,7 @@ const App = () => {
   return (
     <div className="App">
       <Router>
-        <Route path='/' exact render={Home} />
+        <Route path='/' exact render={(props) => <Home {...props}/>} />
         <Route path='/:id' render={(props) => <Room {...props} />} />
       </Router>
     </div>
