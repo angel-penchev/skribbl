@@ -10,7 +10,7 @@ const minUsers = 3
 const maxUsers = 10
 const wordlists = ['english', 'bulgarian', 'custom']
 
-const RoomSettings: React.FC<Props> = ({onRoomCreate}) => {
+const CreateRoom: React.FC<Props> = ({onRoomCreate}) => {
     const [rounds, setRounds] = useState('3')
     const [users, setUsers] = useState('5')
     const [wordlist, setWordlist] = useState(wordlists[0])
@@ -18,7 +18,6 @@ const RoomSettings: React.FC<Props> = ({onRoomCreate}) => {
 
     const onSubmit = (e: FormEvent<Element>) => {
         e.preventDefault()
-    
         onRoomCreate()
     }
 
@@ -67,4 +66,4 @@ const RoomSettings: React.FC<Props> = ({onRoomCreate}) => {
     )
 }
 
-export default RoomSettings
+export default CreateRoom

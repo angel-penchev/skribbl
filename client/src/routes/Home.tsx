@@ -3,14 +3,15 @@ import AppBar from "@material-ui/core/AppBar";
 import Tab from "@material-ui/core/Tab";
 import Tabs from "@material-ui/core/Tabs";
 import TabPanel from "../components/TabPanel";
-import RoomSettings from "../components/RoomSettings";
+import CreateRoom from "../components/CreateRoom";
 import UsernameInput from "../components/UsernameInput";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 import JoinRoom from "../components/JoinRoom";
 
 const Home: React.FC<RouteComponentProps> = () => {
     const [username, setUsername] = useState('')
     const [value, setValue] = useState(0);
+    let history = useHistory();
 
     const onUsernameChange = (username: string) => {
         setUsername(username)
@@ -28,6 +29,8 @@ const Home: React.FC<RouteComponentProps> = () => {
             alert('Please, enter a username.')
             return
         }
+
+        history.push(roomId)
     }
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
@@ -46,13 +49,13 @@ const Home: React.FC<RouteComponentProps> = () => {
               </Tabs>
             </AppBar>
             <TabPanel value={value} index={0}>
-              <RoomSettings onRoomCreate={onRoomCreate} />
+              <CreateRoom onRoomCreate={onRoomCreate} />
             </TabPanel>
             <TabPanel value={value} index={1}>
               <JoinRoom onRoomJoin={onRoomJoin}/>
             </TabPanel>
             <TabPanel value={value} index={2}>
-              <p>Public Rooms</p>
+              Public Rooms
             </TabPanel>
           </div>
         </div>
