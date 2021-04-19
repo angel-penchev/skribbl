@@ -24,7 +24,7 @@ const RoomSettings: React.FC<Props> = ({onRoomCreate}) => {
 
     return (
         <form className='room-form' onSubmit={onSubmit}>
-            <div className='formControl'>
+            <div className='form-control'>
                 <label>Rounds</label>
                 <input
                     type="number"
@@ -34,7 +34,7 @@ const RoomSettings: React.FC<Props> = ({onRoomCreate}) => {
                     max={maxRounds}
                 />
             </div>
-            <div className='formControl'>
+            <div className='form-control'>
                 <label>Max Users</label>
                 <input
                     type="number"
@@ -44,21 +44,22 @@ const RoomSettings: React.FC<Props> = ({onRoomCreate}) => {
                     max={maxUsers}
                 />
             </div>
-            <div className='formControl'>
+            <div className='form-control'>
                 <label>Wordlist</label>
                 <select value={wordlist} onChange={(e) => setWordlist(e.target.value)}>
                     {
                         wordlists.map((value, index) => {
-                            return <option id={index.toString()} value={value}>{value}</option>
+                            return <option key={index.toString()} value={value}>{value}</option>
                         })
                     }
                 </select>
             </div>
-            <div className='formControl'>
+            <div className='form-control'>
                 <label>Custom words</label>
                 <textarea
                     value={customWords}
                     onChange={(e) => setCustomWords(e.target.value)}
+                    disabled={wordlist !== 'custom'}
                 ></textarea>
             </div>
             <input type='submit' value='Create Room' className='btn btn-block' />
