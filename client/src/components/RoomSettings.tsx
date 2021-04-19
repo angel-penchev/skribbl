@@ -49,7 +49,7 @@ const RoomSettings: React.FC<Props> = ({onRoomCreate}) => {
                 <select value={wordlist} onChange={(e) => setWordlist(e.target.value)}>
                     {
                         wordlists.map((value, index) => {
-                            return <option id={index} value={value}>{value}</option>
+                            return <option id={index.toString()} value={value}>{value}</option>
                         })
                     }
                 </select>
