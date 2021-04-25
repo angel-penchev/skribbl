@@ -15,8 +15,12 @@ body {
   margin: 30px auto;
   overflow: auto;
   border: 1px solid steelblue;
-  padding: 30px;
+  padding: 20px;
   border-radius: 5px;
+}
+
+.container-wide {
+  max-width: 90% !important;
 }
 
 .header {
@@ -71,7 +75,29 @@ body {
   font-size: 17px;
 }
 
-footer {
-  margin-top: 30px;
-  text-align: center;
+.whiteboard {
+  width: 800px;
+  height: 600px;
+  border: 1px solid steelblue;
+  border-radius: 5px;
+}
+
+.colors {
+  display: inline-block;
+}
+
+.color {
+  display: inline-block;
+  height: 48px;
+  width: 48px;
+}
+
+.color.black { background-color: black; }
+.color.red { background-color: red; }
+.color.green { background-color: green; }
+.color.blue { background-color: blue; }
+.color.yellow { background-color: yellow; }
+
+.slider-div {
+  display: inline-block;
 }
