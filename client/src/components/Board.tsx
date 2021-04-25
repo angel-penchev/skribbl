@@ -1,9 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 const Board = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const colorsRef = useRef<HTMLDivElement>(null)
-    const [strokeWidth, setStrokeWidth] = useState(5)
+    const sliderRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -34,8 +34,7 @@ const Board = () => {
             context?.stroke();
             context?.closePath();
             if (context) context.strokeStyle = color;
-            if (context) context.lineWidth = strokeWidth;
-            console.log(strokeWidth)
+            if (context && sliderRef.current) context.lineWidth = parseInt(sliderRef.current?.value);
             const w = canvas?.width;
             const h = canvas?.height;
 
@@ -88,7 +87,7 @@ const Board = () => {
         //     const h = canvas?.height;
         //     drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, true);
         // }
-    }, [])
+    })
 
 
     return (
@@ -106,7 +105,7 @@ const Board = () => {
                 </div>
                 <div className="slider-div">
                     <label>Width</label><br />
-                    <input className="slider" type="range" onChange={(e) => setStrokeWidth(parseInt(e.target.value))} min="1" max="20" value={strokeWidth} />
+                    <input ref={sliderRef} className="slider" type="range" min="1" max="10" />
                 </div>
             </div>
         </div>
