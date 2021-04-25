@@ -101,3 +101,8 @@ body {
 .slider-div {
   display: inline-block;
 }
+
+.chat {
+  display: inline-block;
+  height: 100%;
+}

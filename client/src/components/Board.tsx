@@ -1,94 +1,120 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
+import SockJsClient from 'react-stomp';
 
-const Board = () => {
+interface Props {
+    roomId: string;
+}
+
+interface Line {
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+    strokeWidth: number;
+    color: string;
+    emit: boolean;
+}
+
+const Board: React.FC<Props> = ({ roomId }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const colorsRef = useRef<HTMLDivElement>(null)
     const sliderRef = useRef<HTMLInputElement>(null)
+    const [socketClient, setSocketClient] = useState()
 
-    useEffect(() => {
-        const canvas = canvasRef.current
-        const context = canvas?.getContext('2d')
+    const canvas = canvasRef.current
+    const context = canvas?.getContext('2d')
 
-        const colors = document.getElementsByClassName('color')
+    const colors = document.getElementsByClassName('color')
 
-        const current = {
-            x: 0,
-            y: 0,
-            color: 'black',
+    const current = {
+        x: 0,
+        y: 0,
+        color: 'black',
+    };
+
+    const onColorUpdate = (e: any) => {
+        current.color = e?.target?.className.split(' ')[1];
+    };
+
+    for (let i = 0; i < colors.length; i++) {
+        colors[i].addEventListener('click', onColorUpdate, false);
+    }
+
+    let drawing = false;
+
+    const drawLine = (line: Line) => {
+        context?.beginPath();
+        context?.moveTo(line.startX, line.startY);
+        context?.lineTo(line.endX, line.endY);
+        context?.stroke();
+        context?.closePath();
+        if (context) context.strokeStyle = line.color;
+        if (context) context.lineWidth = line.strokeWidth;
+
+        if (!line.emit) { return; }
+
+        console.log(socketClient)
+        // @ts-ignore
+        if (socketClient) socketClient.sendMessage(`/topic/${roomId}/board`, JSON.stringify(
+            (({ emit, ...o }) => o)(line)
+        ));
+
+    };
+
+    const onMouseDown = (e: MouseEvent) => {
+        drawing = true;
+        current.x = e.pageX - (canvas?.offsetLeft ?? 0)
+        current.y = e.pageY - (canvas?.offsetTop ?? 0)
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+        if (!drawing) { return }
+        drawLine({
+            startX: current.x,
+            startY: current.y,
+            endX: e.pageX - (canvas?.offsetLeft ?? 0),
+            endY: e.pageY - (canvas?.offsetTop ?? 0),
+            color: current.color,
+            strokeWidth: parseInt(sliderRef.current?.value ?? '1'),
+            emit: true
+        });
+        current.x = e.pageX - (canvas?.offsetLeft ?? 0)
+        current.y = e.pageY - (canvas?.offsetTop ?? 0)
+    };
+
+    const onMouseUp = (e: MouseEvent) => {
+        if (!drawing) { return; }
+        drawing = false;
+        drawLine({
+            startX: current.x,
+            startY: current.y,
+            endX: e.pageX - (canvas?.offsetLeft ?? 0),
+            endY: e.pageY - (canvas?.offsetTop ?? 0),
+            color: current.color,
+            strokeWidth: parseInt(sliderRef.current?.value ?? '1'),
+            emit: true
+        });
+    };
+
+    const throttle = (callback: Function, delay: number) => {
+        let previousCall = new Date().getTime();
+        return function () {
+            const time = new Date().getTime();
+
+            if ((time - previousCall) >= delay) {
+                previousCall = time;
+                callback.apply(null, arguments);
+            }
         };
+    };
 
-        const onColorUpdate = (e: any) => {
-            current.color = e?.target?.className.split(' ')[1];
-        };
+    canvas?.addEventListener('mousedown', onMouseDown, false);
+    canvas?.addEventListener('mouseup', onMouseUp, false);
+    canvas?.addEventListener('mouseout', onMouseUp, false);
+    canvas?.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
-        for (let i = 0; i < colors.length; i++) {
-            colors[i].addEventListener('click', onColorUpdate, false);
-        }
-
-        let drawing = false;
-
-        const drawLine = (x0: number, y0: number, x1: number, y1: number, color: string, emit: boolean) => {
-            context?.beginPath();
-            context?.moveTo(x0, y0);
-            context?.lineTo(x1, y1);
-            context?.stroke();
-            context?.closePath();
-            if (context) context.strokeStyle = color;
-            if (context && sliderRef.current) context.lineWidth = parseInt(sliderRef.current?.value);
-            const w = canvas?.width;
-            const h = canvas?.height;
-
-            if (!emit) { return; }
-        };
-
-        const onMouseDown = (e: MouseEvent) => {
-            drawing = true;
-            current.x = e.pageX - (canvas?.offsetLeft ?? 0)
-            current.y = e.pageY - (canvas?.offsetTop ?? 0)
-        };
-
-        const onMouseMove = (e: MouseEvent) => {
-            if (!drawing) { return }
-            drawLine(current.x, current.y, e.pageX - (canvas?.offsetLeft ?? 0), e.pageY - (canvas?.offsetTop ?? 0), current.color, true)
-            current.x = e.pageX - (canvas?.offsetLeft ?? 0)
-            current.y = e.pageY - (canvas?.offsetTop ?? 0)
-        };
-
-        const onMouseUp = (e: MouseEvent) => {
-            if (!drawing) { return; }
-            drawing = false;
-            drawLine(current.x, current.y, e.pageX - (canvas?.offsetLeft ?? 0), e.pageY - (canvas?.offsetTop ?? 0), current.color, true);
-        };
-
-        const throttle = (callback: Function, delay: number) => {
-            let previousCall = new Date().getTime();
-            return function () {
-                const time = new Date().getTime();
-
-                if ((time - previousCall) >= delay) {
-                    previousCall = time;
-                    callback.apply(null, arguments);
-                }
-            };
-        };
-
-        canvas?.addEventListener('mousedown', onMouseDown, false);
-        canvas?.addEventListener('mouseup', onMouseUp, false);
-        canvas?.addEventListener('mouseout', onMouseUp, false);
-        canvas?.addEventListener('mousemove', throttle(onMouseMove, 10), false);
-
-        // -------------- make the canvas fill its parent component -----------------
-
-        if (canvas) canvas.width = 800;
-        if (canvas) canvas.height = 600;
-
-        // const onDrawingEvent = (data) => {
-        //     const w = canvas?.width;
-        //     const h = canvas?.height;
-        //     drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, true);
-        // }
-    })
-
+    if (canvas) canvas.width = 800;
+    if (canvas) canvas.height = 600;
 
     return (
         <div>
@@ -108,6 +134,21 @@ const Board = () => {
                     <input ref={sliderRef} className="slider" type="range" min="1" max="10" />
                 </div>
             </div>
+
+            <SockJsClient url='http://localhost:8080/skribbl/'
+                topics={[`/topic/${roomId}/board`]}
+                onConnect={() => {
+                    console.log("Connected");
+                }}
+                onDisconnect={() => {
+                    console.log("Disconnected");
+                }}
+                onMessage={(msg: Line) => {
+                    drawLine({ ...msg, emit: false });
+                }}
+                ref={(socketClient: any) => {
+                    setSocketClient(socketClient)
+                }} />
         </div>
     )
 }
