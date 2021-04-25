@@ -1,25 +1,74 @@
 import React, { useState } from 'react'
+import SockJsClient from 'react-stomp';
 
-const Chat: React.FC = () => {
-    const [messages, setMessages] = useState([])
+interface Props {
+    roomId: string;
+}
+
+interface Message {
+    type: string,
+    username: string,
+    message: string
+}
+
+const Chat: React.FC<Props> = ({ roomId }) => {
+    const [messages, setMessages] = useState<Array<Message>>([])
+    const [socketClient, setSocketClient] = useState<any>()
+    const [chatInput, setChatInput] = React.useState('');
 
     return (
-        <div id="chat container">
-            <p>a</p>
-            {/* {messages.map((message, idx) => (
+        <div className="chat container">
+            {messages.map((message, index) => (
                 <div
-                    key={idx}
+                    key={index}
                     data-testid="chat-message"
                     className={`msg-${message.type}`}
                 >
-                    {!message.username && message.msg}
+                    {!message.username && message.message}
                     {message.username && (
                         <>
-                            <b>{message.username}:</b> {message.msg}
+                            <b>{message.username}:</b> {message.message}
                         </>
                     )}
                 </div>
-            ))} */}
+            ))}
+
+            <form
+                id="chatbox-form"
+                onSubmit={(e): void => {
+                    e.preventDefault();
+                    if (chatInput === '') {
+                        return;
+                    }
+                    if (socketClient) socketClient.sendMessage(`/topic/${roomId}/chat`, JSON.stringify({
+                        type: 'chat',
+                        username: 'gosho',
+                        message: chatInput
+                    }));
+                    setChatInput('');
+                }}
+            >
+                <input
+                    data-testid="chat-input"
+                    type="text"
+                    value={chatInput}
+                    onChange={(ev): void => setChatInput(ev.target.value)}
+                />
+            </form>
+            <SockJsClient url='http://localhost:8080/skribbl/'
+                topics={[`/topic/${roomId}/chat`]}
+                onConnect={() => {
+                    console.log("Connected");
+                }}
+                onDisconnect={() => {
+                    console.log("Disconnected");
+                }}
+                onMessage={(message: Message) => {
+                    setMessages([...messages, message])
+                }}
+                ref={(socketClient: any) => {
+                    setSocketClient(socketClient)
+                }} />
         </div>
     )
 }

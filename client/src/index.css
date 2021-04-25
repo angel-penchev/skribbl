@@ -76,6 +76,7 @@ body {
 }
 
 .whiteboard {
+  display: inline-block;
   width: 800px;
   height: 600px;
   border: 1px solid steelblue;
@@ -104,5 +105,7 @@ body {
 
 .chat {
   display: inline-block;
+  width: 25%;
   height: 100%;
+  margin-left: 10px;
 }

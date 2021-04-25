@@ -3,8 +3,13 @@ import { RouteComponentProps } from 'react-router-dom'
 import Board from '../components/Board'
 import Chat from '../components/Chat'
 
+interface Props {
+    roomId: string;
+}
+
 const Room: React.FC<RouteComponentProps> = ({ location }) => {
     const roomId = location.pathname.split("/").pop()
+
     return (
         <div>
             <div className="container">
@@ -13,7 +18,7 @@ const Room: React.FC<RouteComponentProps> = ({ location }) => {
             </div>
             <div className="container container-wide">
                 <Board roomId={roomId ?? ''} />
-                <Chat />
+                <Chat roomId={roomId ?? ''} />
             </div>
         </div>
     )

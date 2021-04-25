@@ -117,8 +117,8 @@ const Board: React.FC<Props> = ({ roomId }) => {
     if (canvas) canvas.height = 600;
 
     return (
-        <div>
-            <canvas ref={canvasRef} className="whiteboard" />
+        <div className="whiteboard">
+            <canvas ref={canvasRef} />
 
             <div className="canvas-controls">
 
