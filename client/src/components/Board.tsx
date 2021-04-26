@@ -3,6 +3,7 @@ import SockJsClient from 'react-stomp';
 
 interface Props {
     roomId: string;
+    isLocked: boolean;
 }
 
 interface Line {
@@ -15,7 +16,7 @@ interface Line {
     emit: boolean;
 }
 
-const Board: React.FC<Props> = ({ roomId }) => {
+const Board: React.FC<Props> = ({ roomId, isLocked }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const colorsRef = useRef<HTMLDivElement>(null)
     const sliderRef = useRef<HTMLInputElement>(null)
@@ -61,13 +62,15 @@ const Board: React.FC<Props> = ({ roomId }) => {
     };
 
     const onMouseDown = (e: MouseEvent) => {
+        if (isLocked) { return; }
         drawing = true;
         current.x = e.pageX - (canvas?.offsetLeft ?? 0)
         current.y = e.pageY - (canvas?.offsetTop ?? 0)
     };
 
     const onMouseMove = (e: MouseEvent) => {
-        if (!drawing) { return }
+        if (isLocked) { return; }
+        if (!drawing) { return; }
         drawLine({
             startX: current.x,
             startY: current.y,
@@ -82,6 +85,7 @@ const Board: React.FC<Props> = ({ roomId }) => {
     };
 
     const onMouseUp = (e: MouseEvent) => {
+        if (isLocked) { return; }
         if (!drawing) { return; }
         drawing = false;
         drawLine({
@@ -127,6 +131,7 @@ const Board: React.FC<Props> = ({ roomId }) => {
                     <div className="color green" />
                     <div className="color blue" />
                     <div className="color yellow" />
+                    <div className="color white" />
                 </div>
                 <div className="slider-div">
                     <label>Width</label><br />
