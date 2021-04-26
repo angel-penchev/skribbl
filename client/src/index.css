@@ -110,6 +110,10 @@ body {
   margin-left: 10px;
 }
 
+.message-system {
+  background-color: lightgreen;
+}
+
 .room-tile {
   background: #f4f4f4;
   margin: 5px;

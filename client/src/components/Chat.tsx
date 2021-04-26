@@ -22,8 +22,7 @@ const Chat: React.FC<Props> = ({ roomId, username }) => {
             {messages.map((message, index) => (
                 <div
                     key={index}
-                    data-testid="chat-message"
-                    className={`msg-${message.type}`}
+                    className={`message-${message.username ? 'chat' : 'system'}`}
                 >
                     {!message.username && message.message}
                     {message.username && (
@@ -42,7 +41,6 @@ const Chat: React.FC<Props> = ({ roomId, username }) => {
                         return;
                     }
                     if (socketClient) socketClient.sendMessage(`/topic/${roomId}/chat`, JSON.stringify({
-                        type: 'chat',
                         username: username,
                         message: chatInput
                     }));
@@ -58,12 +56,6 @@ const Chat: React.FC<Props> = ({ roomId, username }) => {
             </form>
             <SockJsClient url='http://localhost:8080/skribbl/'
                 topics={[`/topic/${roomId}/chat`]}
-                onConnect={() => {
-                    console.log("Connected");
-                }}
-                onDisconnect={() => {
-                    console.log("Disconnected");
-                }}
                 onMessage={(message: Message) => {
                     setMessages([...messages, message])
                 }}
