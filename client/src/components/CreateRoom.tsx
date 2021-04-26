@@ -1,7 +1,15 @@
 import React, { FormEvent, useState } from 'react'
 
+interface RoomCreateParams {
+  rounds: number,
+  users: number,
+  wordlist: string,
+  customWords: string,
+  isPublic: boolean
+}
+
 interface Props {
-    onRoomCreate: () => any;
+    onRoomCreate: (params: RoomCreateParams) => any;
 }
 
 const minRounds = 3
@@ -19,7 +27,13 @@ const CreateRoom: React.FC<Props> = ({ onRoomCreate }) => {
 
     const onSubmit = (e: FormEvent<Element>) => {
         e.preventDefault()
-        onRoomCreate()
+        onRoomCreate({
+            rounds: parseInt(rounds),
+            users: parseInt(users),
+            wordlist: wordlist,
+            customWords: customWords,
+            isPublic: isPublic,
+        })
     }
 
     return (

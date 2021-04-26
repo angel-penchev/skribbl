@@ -12,7 +12,7 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
     return (
         <div>
             <div className="container">
-                <span><b>Room ID: </b>z</span>
+                <span><b>Room ID: </b></span>
                 <span>{roomId}</span>
             </div>
             <div className="container container-wide">

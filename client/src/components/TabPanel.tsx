@@ -18,7 +18,7 @@ const TabPanel: React.FC<Props> = ({ children, value, index, ...other }) => {
         >
             {value === index && (
                 <Box p={3}>
-                    <Typography>{children}</Typography>
+                    <Typography component={'span'} variant={'body2'}>{children}</Typography>
                 </Box>
             )}
         </div>
