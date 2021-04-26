@@ -10,11 +10,12 @@ const minUsers = 3
 const maxUsers = 10
 const wordlists = ['english', 'bulgarian', 'custom']
 
-const CreateRoom: React.FC<Props> = ({onRoomCreate}) => {
+const CreateRoom: React.FC<Props> = ({ onRoomCreate }) => {
     const [rounds, setRounds] = useState('3')
     const [users, setUsers] = useState('5')
     const [wordlist, setWordlist] = useState(wordlists[0])
     const [customWords, setCustomWords] = useState('')
+    const [isPublic, setIsPublic] = useState(false)
 
     const onSubmit = (e: FormEvent<Element>) => {
         e.preventDefault()
@@ -60,6 +61,14 @@ const CreateRoom: React.FC<Props> = ({onRoomCreate}) => {
                     onChange={(e) => setCustomWords(e.target.value)}
                     disabled={wordlist !== 'custom'}
                 ></textarea>
+            </div>
+            <div className='form-control'>
+                <label>Set Public</label>
+                <input
+                    type='checkbox'
+                    checked={isPublic}
+                    onChange={(e) => setIsPublic(e.currentTarget.checked)}
+                />
             </div>
             <input type='submit' value='Create Room' className='btn btn-block' />
         </form>

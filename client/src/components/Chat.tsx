@@ -3,6 +3,7 @@ import SockJsClient from 'react-stomp';
 
 interface Props {
     roomId: string;
+    username: string;
 }
 
 interface Message {
@@ -11,7 +12,7 @@ interface Message {
     message: string
 }
 
-const Chat: React.FC<Props> = ({ roomId }) => {
+const Chat: React.FC<Props> = ({ roomId, username }) => {
     const [messages, setMessages] = useState<Array<Message>>([])
     const [socketClient, setSocketClient] = useState<any>()
     const [chatInput, setChatInput] = React.useState('');
@@ -42,7 +43,7 @@ const Chat: React.FC<Props> = ({ roomId }) => {
                     }
                     if (socketClient) socketClient.sendMessage(`/topic/${roomId}/chat`, JSON.stringify({
                         type: 'chat',
-                        username: 'gosho',
+                        username: username,
                         message: chatInput
                     }));
                     setChatInput('');

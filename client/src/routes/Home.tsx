@@ -30,7 +30,10 @@ const Home: React.FC<RouteComponentProps> = () => {
             return
         }
 
-        history.push(roomId)
+        history.push({
+          pathname: `/${roomId}`,
+          state: { username: username }
+        })
     }
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
