@@ -1,6 +1,5 @@
 package com.tsb.skribbl.controller;
 
-import com.tsb.skribbl.exception.NoSuchRoomException;
 import com.tsb.skribbl.exception.RoomUserLimitReachedException;
 import com.tsb.skribbl.model.game.DrawingLine;
 import com.tsb.skribbl.model.game.Room;
@@ -10,18 +9,14 @@ import com.tsb.skribbl.model.message.ConnectionRequestMessage;
 import com.tsb.skribbl.model.message.RoomNotificationMessage;
 import com.tsb.skribbl.model.request.CreateRoomRequest;
 import com.tsb.skribbl.service.GameLogicService;
-import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 
@@ -47,31 +42,39 @@ public class MainController {
                 customWords,
                 createRoomRequest.getTimeToDraw(),
                 createRoomRequest.getUserLimit(),
-                createRoomRequest.getRoundLimit());
+                createRoomRequest.getRoundLimit(),
+                createRoomRequest.isPublic());
         rooms.put(room.getRoomId().toString(), room);
         return room;
     }
 
     @GetMapping("/{id}")
-    public Room getRoomMapping(@PathVariable String id) throws NoSuchRoomException {
+    public Room getRoomMapping(@PathVariable String id) {
         return rooms.get(id);
+    }
+
+    @GetMapping("/public-rooms")
+    public ArrayList<Room> getPublicRoomsMapping() {
+        ArrayList<Room> publicRooms = new ArrayList<>();
+        for (Room room : rooms.values()) {
+            publicRooms.add(room);
+            if (room.isPublic()) {
+                if (publicRooms.size() >= 6) break;
+            }
+        }
+
+        System.out.println(publicRooms.size());
+        return publicRooms;
     }
 
     @MessageMapping("/connect/{roomId}/chat")
     @SendTo("/topic/room/{roomId}/chat")
     public RoomNotificationMessage connectMapping(
             ConnectionRequestMessage message,
-            @DestinationVariable String roomId) throws NoSuchRoomException, RoomUserLimitReachedException {
+            @DestinationVariable String roomId) throws RoomUserLimitReachedException {
         Room room = rooms.get(roomId);
         room.addUser(new User(message.getUsername()));
         return new RoomNotificationMessage("connection", String.format("Glad you're here, %s", message.getUsername()));
-    }
-
-    @EventListener
-    @SendTo("/topic/room/{roomId}/chat")
-    public void onUserDisconnect(SessionDisconnectEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        String sessionId = accessor.getSessionId();
     }
 
     @MessageMapping("/connect/{roomId}/board")
@@ -82,15 +85,4 @@ public class MainController {
         );
         return message;
     }
-
-//    @MessageMapping("/connect/{roomId}/board")
-//    @SendTo("/topic/room/{roomId}/board")
-//    public RoomNotificationMessage boardMapping(
-//            BoardEditMessage message,
-//            @DestinationVariable String roomId) throws NoSuchRoomException {
-//        Room room = getRoom(roomId);
-//        DrawingLine drawingLine = new DrawingLine();
-//        room.getRound().addDrawingLineToCanvas();
-//        return new RoomNotificationMessage("connection", String.format("Glad you're here, %s", message.getUsername()));
-//    }
 }

@@ -29,12 +29,6 @@ public class Room {
         this.userLimit = userLimit;
         this.roundLimit = roundLimit;
         this.isPublic = isPublic;
-
-        System.out.println(words);
-        System.out.println(timeToDraw);
-        System.out.println(userLimit);
-        System.out.println(roundLimit);
-        System.out.println(isPublic);
     }
 
     private void updateScoresFromUserScores() {
@@ -135,5 +129,9 @@ public class Room {
 
     public int getRoundId() {
         return roundId;
+    }
+
+    public int getUserAmount() {
+        return users.size();
     }
 }

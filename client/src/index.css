@@ -109,3 +109,16 @@ body {
   height: 100%;
   margin-left: 10px;
 }
+
+.room-tile {
+  background: #f4f4f4;
+  margin: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.room-tile h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
