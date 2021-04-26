@@ -17,16 +17,24 @@ public class Room {
     private final long timeToDraw;
     private final int userLimit;
     private final int roundLimit;
+    private final boolean isPublic;
     private boolean isGameStarted = false;
     private Round round = null;
     private int roundId = 0;
     private final Hashtable<UUID, Integer> userScores = new Hashtable<>();
 
-    public Room(ArrayList<String> words, long timeToDraw, int userLimit, int roundLimit) {
+    public Room(ArrayList<String> words, long timeToDraw, int userLimit, int roundLimit, boolean isPublic) {
         this.words = words;
         this.timeToDraw = timeToDraw;
         this.userLimit = userLimit;
         this.roundLimit = roundLimit;
+        this.isPublic = isPublic;
+
+        System.out.println(words);
+        System.out.println(timeToDraw);
+        System.out.println(userLimit);
+        System.out.println(roundLimit);
+        System.out.println(isPublic);
     }
 
     private void updateScoresFromUserScores() {
@@ -107,5 +115,25 @@ public class Room {
 
     public Round getRound() {
         return round;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public long getTimeToDraw() {
+        return timeToDraw;
+    }
+
+    public int getUserLimit() {
+        return userLimit;
+    }
+
+    public int getRoundLimit() {
+        return roundLimit;
+    }
+
+    public int getRoundId() {
+        return roundId;
     }
 }

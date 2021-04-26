@@ -3,35 +3,12 @@ package com.tsb.skribbl.model.request;
 import java.util.ArrayList;
 
 public class CreateRoomRequest {
-    private String wordlistName;
-    private ArrayList<String> wordlist;
-    private int timeToDraw;
     private int userLimit;
     private int roundLimit;
-
-    public String getWordlistName() {
-        return wordlistName;
-    }
-
-    public void setWordlistName(String wordlistName) {
-        this.wordlistName = wordlistName;
-    }
-
-    public ArrayList<String> getWordlist() {
-        return wordlist;
-    }
-
-    public void setWordlist(ArrayList<String> wordlist) {
-        this.wordlist = wordlist;
-    }
-
-    public int getTimeToDraw() {
-        return timeToDraw;
-    }
-
-    public void setTimeToDraw(int timeToDraw) {
-        this.timeToDraw = timeToDraw;
-    }
+    private int timeToDraw;
+    private String wordlist;
+    private String customWords;
+    private boolean isPublic;
 
     public int getUserLimit() {
         return userLimit;
@@ -47,5 +24,37 @@ public class CreateRoomRequest {
 
     public void setRoundLimit(int roundLimit) {
         this.roundLimit = roundLimit;
+    }
+
+    public int getTimeToDraw() {
+        return timeToDraw;
+    }
+
+    public void setTimeToDraw(int timeToDraw) {
+        this.timeToDraw = timeToDraw;
+    }
+
+    public String getWordlist() {
+        return wordlist;
+    }
+
+    public void setWordlist(String wordlist) {
+        this.wordlist = wordlist;
+    }
+
+    public String getCustomWords() {
+        return customWords;
+    }
+
+    public void setCustomWords(String customWords) {
+        this.customWords = customWords;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }

@@ -7,10 +7,12 @@ import CreateRoom from "../components/CreateRoom";
 import UsernameInput from "../components/UsernameInput";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 import JoinRoom from "../components/JoinRoom";
+import PublicRooms from "../components/PublicRooms";
 
 interface RoomCreateParams {
-  rounds: number,
-  users: number,
+  roundLimit: number,
+  userLimit: number,
+  timeToDraw: number,
   wordlist: string,
   customWords: string,
   isPublic: boolean
@@ -82,8 +84,8 @@ const Home: React.FC<RouteComponentProps> = () => {
           <JoinRoom onRoomJoin={onRoomJoin} />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          Public Rooms
-            </TabPanel>
+          <PublicRooms onRoomJoin={onRoomJoin} />
+        </TabPanel>
       </div>
     </div>
   );

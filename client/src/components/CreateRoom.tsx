@@ -1,8 +1,9 @@
 import React, { FormEvent, useState } from 'react'
 
 interface RoomCreateParams {
-  rounds: number,
-  users: number,
+  roundLimit: number,
+  userLimit: number,
+  timeToDraw: number,
   wordlist: string,
   customWords: string,
   isPublic: boolean
@@ -16,11 +17,14 @@ const minRounds = 3
 const maxRounds = 10
 const minUsers = 3
 const maxUsers = 10
+const minTimeToDraw = 10
+const maxTimeToDraw = 100
 const wordlists = ['english', 'bulgarian', 'custom']
 
 const CreateRoom: React.FC<Props> = ({ onRoomCreate }) => {
-    const [rounds, setRounds] = useState('3')
-    const [users, setUsers] = useState('5')
+    const [roundLimit, setRoundLimit] = useState('3')
+    const [userLimit, setUserLimit] = useState('5')
+    const [timeToDraw, setTimeToDraw] = useState('69')
     const [wordlist, setWordlist] = useState(wordlists[0])
     const [customWords, setCustomWords] = useState('')
     const [isPublic, setIsPublic] = useState(false)
@@ -28,8 +32,9 @@ const CreateRoom: React.FC<Props> = ({ onRoomCreate }) => {
     const onSubmit = (e: FormEvent<Element>) => {
         e.preventDefault()
         onRoomCreate({
-            rounds: parseInt(rounds),
-            users: parseInt(users),
+            roundLimit: parseInt(roundLimit),
+            userLimit: parseInt(userLimit),
+            timeToDraw: parseInt(timeToDraw),
             wordlist: wordlist,
             customWords: customWords,
             isPublic: isPublic,
@@ -42,8 +47,8 @@ const CreateRoom: React.FC<Props> = ({ onRoomCreate }) => {
                 <label>Rounds</label>
                 <input
                     type="number"
-                    value={rounds}
-                    onChange={(e) => setRounds(e.target.value)}
+                    value={roundLimit}
+                    onChange={(e) => setRoundLimit(e.target.value)}
                     min={minRounds}
                     max={maxRounds}
                 />
@@ -52,10 +57,20 @@ const CreateRoom: React.FC<Props> = ({ onRoomCreate }) => {
                 <label>Max Users</label>
                 <input
                     type="number"
-                    value={users}
-                    onChange={(e) => setUsers(e.target.value)}
+                    value={userLimit}
+                    onChange={(e) => setUserLimit(e.target.value)}
                     min={minUsers}
                     max={maxUsers}
+                />
+            </div>
+            <div className='form-control'>
+                <label>Time to draw</label>
+                <input
+                    type="number"
+                    value={timeToDraw}
+                    onChange={(e) => setTimeToDraw(e.target.value)}
+                    min={minTimeToDraw}
+                    max={maxTimeToDraw}
                 />
             </div>
             <div className='form-control'>
