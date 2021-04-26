@@ -40,7 +40,7 @@ const Chat: React.FC<Props> = ({ roomId, username }) => {
                     if (chatInput === '') {
                         return;
                     }
-                    if (socketClient) socketClient.sendMessage(`/topic/${roomId}/chat`, JSON.stringify({
+                    if (socketClient) socketClient.sendMessage(`/app/room/${roomId}/chat`, JSON.stringify({
                         username: username,
                         message: chatInput
                     }));
@@ -55,7 +55,7 @@ const Chat: React.FC<Props> = ({ roomId, username }) => {
                 />
             </form>
             <SockJsClient url='http://localhost:8080/skribbl/'
-                topics={[`/topic/${roomId}/chat`]}
+                topics={[`/topic/room/${roomId}/chat`]}
                 onMessage={(message: Message) => {
                     setMessages([...messages, message])
                 }}

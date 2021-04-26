@@ -53,9 +53,8 @@ const Board: React.FC<Props> = ({ roomId }) => {
 
         if (!line.emit) { return; }
 
-        console.log(socketClient)
         // @ts-ignore
-        if (socketClient) socketClient.sendMessage(`/topic/${roomId}/board`, JSON.stringify(
+        if (socketClient) socketClient.sendMessage(`/app/room/${roomId}/board`, JSON.stringify(
             (({ emit, ...o }) => o)(line)
         ));
 
@@ -136,13 +135,7 @@ const Board: React.FC<Props> = ({ roomId }) => {
             </div>
 
             <SockJsClient url='http://localhost:8080/skribbl/'
-                topics={[`/topic/${roomId}/board`]}
-                onConnect={() => {
-                    console.log("Connected");
-                }}
-                onDisconnect={() => {
-                    console.log("Disconnected");
-                }}
+                topics={[`/topic/room/${roomId}/board`]}
                 onMessage={(msg: Line) => {
                     drawLine({ ...msg, emit: false });
                 }}
