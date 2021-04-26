@@ -1,6 +1,6 @@
 package com.tsb.skribbl.model.message;
 
-public class BoardLineMessage {
+public class BoardMessage {
     private float startX;
     private float startY;
     private float endX;

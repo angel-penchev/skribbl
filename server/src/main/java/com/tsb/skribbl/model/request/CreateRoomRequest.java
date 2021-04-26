@@ -1,7 +1,5 @@
 package com.tsb.skribbl.model.request;
 
-import java.util.ArrayList;
-
 public class CreateRoomRequest {
     private int userLimit;
     private int roundLimit;

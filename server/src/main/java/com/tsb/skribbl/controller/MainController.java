@@ -1,12 +1,12 @@
 package com.tsb.skribbl.controller;
 
+import com.tsb.skribbl.exception.GameHasAlreadyStartedException;
 import com.tsb.skribbl.exception.RoomUserLimitReachedException;
-import com.tsb.skribbl.model.game.DrawingLine;
 import com.tsb.skribbl.model.game.Room;
 import com.tsb.skribbl.model.game.User;
-import com.tsb.skribbl.model.message.BoardLineMessage;
-import com.tsb.skribbl.model.message.ConnectionRequestMessage;
-import com.tsb.skribbl.model.message.RoomNotificationMessage;
+import com.tsb.skribbl.model.message.BoardMessage;
+import com.tsb.skribbl.model.message.ChatMessage;
+import com.tsb.skribbl.model.message.GameMessage;
 import com.tsb.skribbl.model.request.CreateRoomRequest;
 import com.tsb.skribbl.service.GameLogicService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -67,22 +67,57 @@ public class MainController {
         return publicRooms;
     }
 
-    @MessageMapping("/connect/{roomId}/chat")
+    @MessageMapping("/room/{roomId}/chat")
     @SendTo("/topic/room/{roomId}/chat")
-    public RoomNotificationMessage connectMapping(
-            ConnectionRequestMessage message,
-            @DestinationVariable String roomId) throws RoomUserLimitReachedException {
-        Room room = rooms.get(roomId);
-        room.addUser(new User(message.getUsername()));
-        return new RoomNotificationMessage("connection", String.format("Glad you're here, %s", message.getUsername()));
+    public ChatMessage chatMapping(
+            ChatMessage message
+    ) {
+        System.out.println(message.getMessage());
+        return message;
     }
 
-    @MessageMapping("/connect/{roomId}/board")
+    @MessageMapping("/room/{roomId}/game")
+    @SendTo("/topic/room/{roomId}/game")
+    public GameMessage gameMapping(
+            GameMessage message,
+            @DestinationVariable String roomId
+    ) throws RoomUserLimitReachedException, GameHasAlreadyStartedException {
+        switch (message.getType()) {
+            case "connection":
+                Room room = rooms.get(roomId);
+                room.addUser(new User(message.getMessage()));
+
+                if (room.getUserAmount() >= 3) {
+                    room.startGame();
+                    User currentDrawingUser = room.startRound();
+                    messagingTemplate.convertAndSend(
+                            "/topic/room/" + roomId + "/game",
+                            new GameMessage("game-start", currentDrawingUser.getUsername())
+                    );
+                }
+
+            case "word-select":
+                return message;
+        }
+
+        return message;
+    }
+
+    @MessageMapping("/room/{roomId}/board")
     @SendTo("/topic/room/{roomId}/board")
-    public BoardLineMessage send(@Payload BoardLineMessage message, @DestinationVariable String roomId) {
-        rooms.get(roomId).getRound().addDrawingLineToCanvas(
-                new DrawingLine(message.getStartX(), message.getStartY(), message.getEndX(), message.getEndY(), message.getColor(), message.getWidth())
-        );
+    public BoardMessage boardMapping(@Payload BoardMessage message, @DestinationVariable String roomId) {
+//        if (rooms.get(roomId) != null) {
+//            rooms.get(roomId).getRound().addDrawingLineToCanvas(
+//                    new DrawingLine(
+//                            message.getStartX(),
+//                            message.getStartY(),
+//                            message.getEndX(),
+//                            message.getEndY(),
+//                            message.getColor(),
+//                            message.getWidth()
+//                    )
+//            );
+//        }
         return message;
     }
 }

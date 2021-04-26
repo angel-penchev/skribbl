@@ -32,7 +32,6 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                     }));
                 }}
                 onDisconnect={() => {
-                    console.log("Disconnected");
                 }}
                 onMessage={(msg: any) => {
                     console.log(msg);

@@ -1,17 +1,30 @@
 package com.tsb.skribbl.model.message;
 
-public class ConnectionRequestMessage {
-    private String username;
+public class GameMessage {
+    private String type;
+    private String message;
 
-    public ConnectionRequestMessage(String username) {
-        this.username = username;
+    public GameMessage(String type, String message) {
+        this.type = type;
+        this.message = message;
     }
 
-    public String getUsername() {
-        return username;
+    public GameMessage() {
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

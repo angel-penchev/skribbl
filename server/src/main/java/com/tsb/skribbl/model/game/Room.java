@@ -70,9 +70,10 @@ public class Room {
         isGameStarted = false;
     }
 
-    public void startRound() {
+    public User startRound() {
         this.removeDisconnectedUsersFromUserScores();
         this.round = new Round(++this.roundId, this.timeToDraw, this.words, this.users);
+        return this.users.get(roundId % this.users.size());
     }
 
     public void endRound() {
@@ -89,7 +90,7 @@ public class Room {
     }
 
     public void addUser(User user) throws RoomUserLimitReachedException {
-        if (this.users.size() < this.userLimit) {
+        if (this.users.size() >= this.userLimit) {
             throw new RoomUserLimitReachedException();
         }
         this.users.add(user);
