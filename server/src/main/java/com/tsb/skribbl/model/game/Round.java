@@ -3,7 +3,6 @@ package com.tsb.skribbl.model.game;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
-import java.util.UUID;
 
 public class Round {
     private final long roundId;
@@ -11,14 +10,17 @@ public class Round {
     private final long timeToDraw;
     private final String word;
     private final ArrayList<DrawingLine> canvas = new ArrayList<>();
-    private final Hashtable<UUID, String> userGuesses = new Hashtable<>();
-    private final Hashtable<UUID, Integer> userScores;
+    private final Hashtable<String, String> userGuesses = new Hashtable<>();
+    private final Hashtable<String, Integer> userScores;
+    private final User drawingUser;
+    private int usersGuessed = 0;
 
-    public Round(long roundId, long timeToDraw, ArrayList<String> words, ArrayList<User> users) {
+    public Round(long roundId, long timeToDraw, ArrayList<String> words, ArrayList<User> users, User drawingUser) {
         this.roundId = roundId;
         this.timeToDraw = timeToDraw;
         this.word = this.pickRandomWord(words);
         this.userScores = this.initUserScoresTable(users);
+        this.drawingUser = drawingUser;
     }
 
     private String pickRandomWord(ArrayList<String> words) {
@@ -26,10 +28,10 @@ public class Round {
         return words.get(rand.nextInt(words.size()));
     }
 
-    private Hashtable<UUID, Integer> initUserScoresTable(ArrayList<User> users) {
-        Hashtable<UUID, Integer> userScores = new Hashtable<>();
+    private Hashtable<String, Integer> initUserScoresTable(ArrayList<User> users) {
+        Hashtable<String, Integer> userScores = new Hashtable<>();
         for (User user : users) {
-            userScores.put(user.getUserId(), 0);
+            userScores.put(user.getUsername().toString(), 0);
         }
         return userScores;
     }
@@ -38,8 +40,8 @@ public class Round {
         this.canvas.add(drawingLine);
     }
 
-    public boolean makeGuess(UUID userId, String guess) {
-        userGuesses.put(userId, guess);
+    public boolean makeGuess(String username, String guess) {
+        userGuesses.put(username, guess);
 
         boolean isCorrectGuess = this.word.equals(guess);
         if (!isCorrectGuess) {
@@ -47,7 +49,8 @@ public class Round {
         }
 
         int score = (int) (this.getEndsAt() - java.time.Instant.now().getEpochSecond());
-        this.userScores.replace(userId, score);
+        this.userScores.replace(username, score);
+        usersGuessed++;
         return true;
     }
 
@@ -82,11 +85,19 @@ public class Round {
         return canvas;
     }
 
-    public Hashtable<UUID, String> getUserGuesses() {
+    public Hashtable<String, String> getUserGuesses() {
         return userGuesses;
     }
 
-    public Hashtable<UUID, Integer> getUserScores() {
+    public Hashtable<String, Integer> getUserScores() {
         return userScores;
+    }
+
+    public User getDrawingUser() {
+        return drawingUser;
+    }
+
+    public int getUsersGuessed() {
+        return usersGuessed;
     }
 }

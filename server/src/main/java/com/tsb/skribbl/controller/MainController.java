@@ -7,8 +7,9 @@ import com.tsb.skribbl.model.game.User;
 import com.tsb.skribbl.model.message.BoardMessage;
 import com.tsb.skribbl.model.message.ChatMessage;
 import com.tsb.skribbl.model.message.GameMessage;
+import com.tsb.skribbl.model.message.GameWordSelectionMessage;
 import com.tsb.skribbl.model.request.CreateRoomRequest;
-import com.tsb.skribbl.service.GameLogicService;
+import com.tsb.skribbl.service.GameService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -18,18 +19,25 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
 public class MainController {
     public final SimpMessageSendingOperations messagingTemplate;
-    private final GameLogicService gameLogicService;
+    private final GameService gameService;
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final Hashtable<String, Room> rooms = new Hashtable<>();
+    private final Hashtable<String, ScheduledFuture<?>> roundTimers = new Hashtable<>();
 
-    public MainController(SimpMessageSendingOperations messagingTemplate, GameLogicService gameLogicService) {
+    public MainController(SimpMessageSendingOperations messagingTemplate, GameService gameService) {
         this.messagingTemplate = messagingTemplate;
-        this.gameLogicService = gameLogicService;
+        this.gameService = gameService;
     }
 
     @PostMapping("/create-room")
@@ -37,7 +45,7 @@ public class MainController {
         ArrayList<String> customWords = new ArrayList<>();
         Collections.addAll(customWords, createRoomRequest.getCustomWords().split("\\s+"));
 
-        Room room = gameLogicService.createRoom(
+        Room room = gameService.createRoom(
                 createRoomRequest.getWordlist(),
                 customWords,
                 createRoomRequest.getTimeToDraw(),
@@ -63,16 +71,29 @@ public class MainController {
             }
         }
 
-        System.out.println(publicRooms.size());
         return publicRooms;
     }
 
     @MessageMapping("/room/{roomId}/chat")
     @SendTo("/topic/room/{roomId}/chat")
     public ChatMessage chatMapping(
-            ChatMessage message
+            ChatMessage message,
+            @DestinationVariable String roomId
     ) {
-        System.out.println(message.getMessage());
+        Room room = rooms.get(roomId);
+        messagingTemplate.convertAndSend(
+                "/topic/room/" + roomId + "/game",
+                gameService.makeGuess(room, message.getUsername(), message.getMessage())
+        );
+
+        if (room.getRound().getUsersGuessed() >= room.getRound().getUserScores().size()) {
+            roundTimers.get(roomId).cancel(true);
+            messagingTemplate.convertAndSend(
+                    "/topic/room/" + roomId + "/game",
+                    gameService.roundEnd(room)
+            );
+        }
+
         return message;
     }
 
@@ -82,22 +103,33 @@ public class MainController {
             GameMessage message,
             @DestinationVariable String roomId
     ) throws RoomUserLimitReachedException, GameHasAlreadyStartedException {
+        Room room = rooms.get(roomId);
         switch (message.getType()) {
             case "connection":
-                Room room = rooms.get(roomId);
                 room.addUser(new User(message.getMessage()));
 
                 if (room.getUserAmount() >= 3) {
-                    room.startGame();
-                    User currentDrawingUser = room.startRound();
                     messagingTemplate.convertAndSend(
                             "/topic/room/" + roomId + "/game",
-                            new GameMessage("game-start", currentDrawingUser.getUsername())
+                            gameService.startGame(room)
+                    );
+
+                    messagingTemplate.convertAndSend(
+                            "/topic/room/" + roomId + "/game",
+                            gameService.wordSelect(room)
                     );
                 }
-
-            case "word-select":
                 return message;
+
+            case "word-selected":
+                Runnable task = () -> messagingTemplate.convertAndSend(
+                        "/topic/room/" + roomId + "/game",
+                        gameService.roundEnd(room)
+                );
+                ScheduledFuture<?> scheduledTask =  scheduler.schedule(task, room.getTimeToDraw(), TimeUnit.SECONDS);
+                this.roundTimers.put(roomId, scheduledTask);
+                scheduler.shutdown();
+                return gameService.roundStart(room);
         }
 
         return message;

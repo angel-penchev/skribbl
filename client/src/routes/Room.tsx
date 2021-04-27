@@ -6,6 +6,7 @@ import Chat from '../components/Chat'
 
 const Room: React.FC<RouteComponentProps> = ({location}) => {
     const [socketClient, setSocketClient] = useState()
+    const [isBoardUnlocked, setIsBoardUnlocked] = useState(false)
     const roomId = location.pathname.split("/").pop()
 
     // @ts-ignore
@@ -18,9 +19,10 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                 <span>{roomId}</span>
             </div>
             <div className="container container-wide">
-                <Board roomId={roomId ?? ''} />
+                <Board roomId={roomId ?? ''} isLocked={isBoardUnlocked} />
                 <Chat roomId={roomId ?? ''} username={username} />
             </div>
+            
             <SockJsClient url='http://localhost:8080/skribbl/'
                 topics={[`/topic/room/${roomId}/game`]}
                 onConnect={() => {
@@ -33,8 +35,17 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                 }}
                 onDisconnect={() => {
                 }}
-                onMessage={(msg: any) => {
-                    console.log(msg);
+                onMessage={(message: any) => {
+                    switch (message.type) {
+                        // case 'word-select-prompt':
+                        //     if (message.message === username) {
+                                
+                        //     }
+                        // case 'round-start':
+                        //     if (message.message === username) {
+                        //         setIsBoardUnlocked(true);
+                        //     }
+                    }
                 }}
                 ref={(socketClient: any) => {
                     setSocketClient(socketClient)

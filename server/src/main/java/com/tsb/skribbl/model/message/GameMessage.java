@@ -9,8 +9,7 @@ public class GameMessage {
         this.message = message;
     }
 
-    public GameMessage() {
-    }
+    public GameMessage() {}
 
     public String getType() {
         return type;

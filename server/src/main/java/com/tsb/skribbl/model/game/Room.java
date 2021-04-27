@@ -21,7 +21,7 @@ public class Room {
     private boolean isGameStarted = false;
     private Round round = null;
     private int roundId = 0;
-    private final Hashtable<UUID, Integer> userScores = new Hashtable<>();
+    private final Hashtable<String, Integer> userScores = new Hashtable<>();
 
     public Room(ArrayList<String> words, long timeToDraw, int userLimit, int roundLimit, boolean isPublic) {
         this.words = words;
@@ -34,22 +34,22 @@ public class Room {
     private void updateScoresFromUserScores() {
         // Updates all existing user scores and adds new entries for users who just joined
         for (User user : this.users) {
-            if (!this.userScores.contains(user.getUserId())) {
-                this.userScores.put(user.getUserId(), 0);
+            if (!this.userScores.contains(user.getUsername())) {
+                this.userScores.put(user.getUsername().toString(), 0);
             } else {
-                int currentScore = this.userScores.get(user.getUserId());
-                int roundScore = this.round.getUserScores().get(user.getUserId());
-                this.userScores.replace(user.getUserId(), currentScore + roundScore);
+                int currentScore = this.userScores.get(user.getUsername().toString());
+                int roundScore = this.round.getUserScores().get(user.getUsername());
+                this.userScores.replace(user.getUsername().toString(), currentScore + roundScore);
             }
         }
     }
 
     private void removeDisconnectedUsersFromUserScores() {
         // Removing scores for all disconnected users
-        List<UUID> currentUserIds = this.users.stream().map(User::getUserId).collect(Collectors.toList());
-        for (UUID userId : userScores.keySet()) {
-            if (!currentUserIds.contains(userId)) {
-                this.userScores.remove(userId);
+        List<String> currentUsernames = this.users.stream().map(User::getUsername).collect(Collectors.toList());
+        for (String username : userScores.keySet()) {
+            if (!currentUsernames.contains(username)) {
+                this.userScores.remove(username);
             }
         }
     }
@@ -70,10 +70,11 @@ public class Room {
         isGameStarted = false;
     }
 
-    public User startRound() {
+    public Round startRound() {
         this.removeDisconnectedUsersFromUserScores();
-        this.round = new Round(++this.roundId, this.timeToDraw, this.words, this.users);
-        return this.users.get(roundId % this.users.size());
+        User drawingUser = this.users.get(roundId % this.users.size());
+        this.round = new Round(++this.roundId, this.timeToDraw, this.words, this.users, drawingUser);
+        return this.round;
     }
 
     public void endRound() {
@@ -134,5 +135,13 @@ public class Room {
 
     public int getUserAmount() {
         return users.size();
+    }
+
+    public ArrayList<String> getWords() {
+        return this.words;
+    }
+
+    public Hashtable<String, Integer> getUserScores() {
+        return userScores;
     }
 }
