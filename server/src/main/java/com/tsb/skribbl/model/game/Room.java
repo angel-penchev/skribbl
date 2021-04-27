@@ -39,7 +39,7 @@ public class Room {
             } else {
                 int currentScore = this.userScores.get(user.getUsername().toString());
                 int roundScore = this.round.getUserScores().get(user.getUsername());
-                this.userScores.replace(user.getUsername().toString(), currentScore + roundScore);
+                this.userScores.replace(user.getUsername(), currentScore + roundScore);
             }
         }
     }

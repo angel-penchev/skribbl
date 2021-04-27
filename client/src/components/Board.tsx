@@ -11,7 +11,7 @@ interface Line {
     startY: number;
     endX: number;
     endY: number;
-    strokeWidth: number;
+    width: number;
     color: string;
     emit: boolean;
 }
@@ -50,7 +50,7 @@ const Board: React.FC<Props> = ({ roomId, isUnlocked: isLocked }) => {
         context?.stroke();
         context?.closePath();
         if (context) context.strokeStyle = line.color;
-        if (context) context.lineWidth = line.strokeWidth;
+        if (context) context.lineWidth = line.width;
 
         if (!line.emit) { return; }
 
@@ -77,7 +77,7 @@ const Board: React.FC<Props> = ({ roomId, isUnlocked: isLocked }) => {
             endX: e.pageX - (canvas?.offsetLeft ?? 0),
             endY: e.pageY - (canvas?.offsetTop ?? 0),
             color: current.color,
-            strokeWidth: parseInt(sliderRef.current?.value ?? '1'),
+            width: parseInt(sliderRef.current?.value ?? '1'),
             emit: true
         });
         current.x = e.pageX - (canvas?.offsetLeft ?? 0)
@@ -94,7 +94,7 @@ const Board: React.FC<Props> = ({ roomId, isUnlocked: isLocked }) => {
             endX: e.pageX - (canvas?.offsetLeft ?? 0),
             endY: e.pageY - (canvas?.offsetTop ?? 0),
             color: current.color,
-            strokeWidth: parseInt(sliderRef.current?.value ?? '1'),
+            width: parseInt(sliderRef.current?.value ?? '1'),
             emit: true
         });
     };

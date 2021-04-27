@@ -86,6 +86,10 @@ public class MainController {
             messagingTemplate.convertAndSend(
                     "/topic/room/" + roomId + "/chat",
                     gameService.makeGuess(room, message.getUsername(), message.getMessage()));
+        } else {
+            messagingTemplate.convertAndSend(
+                    "/topic/room/" + roomId + "/chat",
+                    new ChatMessage(message.getUsername(), message.getMessage()));
         }
 
 
@@ -129,7 +133,6 @@ public class MainController {
                 );
                 ScheduledFuture<?> scheduledTask =  scheduler.schedule(task, room.getTimeToDraw(), TimeUnit.SECONDS);
                 this.roundTimers.put(roomId, scheduledTask);
-                scheduler.shutdown();
                 return gameService.roundStart(room, message.getMessage());
         }
 
