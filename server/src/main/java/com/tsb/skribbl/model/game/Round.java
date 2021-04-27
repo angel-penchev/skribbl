@@ -15,17 +15,12 @@ public class Round {
     private final User drawingUser;
     private int usersGuessed = 0;
 
-    public Round(long roundId, long timeToDraw, ArrayList<String> words, ArrayList<User> users, User drawingUser) {
+    public Round(long roundId, long timeToDraw, String word, ArrayList<User> users, User drawingUser) {
         this.roundId = roundId;
         this.timeToDraw = timeToDraw;
-        this.word = this.pickRandomWord(words);
+        this.word = word;
         this.userScores = this.initUserScoresTable(users);
         this.drawingUser = drawingUser;
-    }
-
-    private String pickRandomWord(ArrayList<String> words) {
-        Random rand = new Random();
-        return words.get(rand.nextInt(words.size()));
     }
 
     private Hashtable<String, Integer> initUserScoresTable(ArrayList<User> users) {

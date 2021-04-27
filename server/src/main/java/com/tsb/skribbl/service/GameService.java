@@ -53,7 +53,7 @@ public class GameService {
     }
 
     public GameWordSelectionMessage wordSelect(Room room) {
-        User currentDrawingUser = room.startRound().getDrawingUser();
+        User currentDrawingUser = room.drawingUser();
         ArrayList<String> wordsToPick = new ArrayList<>(room.getWords().subList(0, 3));
 
         return new GameWordSelectionMessage(
@@ -63,8 +63,8 @@ public class GameService {
         );
     }
 
-    public GameMessage roundStart(Room room) {
-        User currentDrawingUser = room.getRound().getDrawingUser();
+    public GameMessage roundStart(Room room, String word) {
+        User currentDrawingUser = room.startRound(word).getDrawingUser();
 
         return new GameMessage(
                 "round-start",
@@ -85,7 +85,7 @@ public class GameService {
 
     public ChatMessage makeGuess(Room room, String username, String guess) {
         if (!room.getRound().makeGuess(username, guess)) {
-            return null;
+            return new ChatMessage(username, guess);
         }
         return new ChatMessage("", username + "has guessed correctly!");
     }

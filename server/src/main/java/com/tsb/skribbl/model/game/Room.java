@@ -59,7 +59,6 @@ public class Room {
             throw new GameHasAlreadyStartedException();
         }
         this.updateScoresFromUserScores();
-        this.startRound();
         isGameStarted = true;
     }
 
@@ -70,10 +69,10 @@ public class Room {
         isGameStarted = false;
     }
 
-    public Round startRound() {
+    public Round startRound(String word) {
         this.removeDisconnectedUsersFromUserScores();
-        User drawingUser = this.users.get(roundId % this.users.size());
-        this.round = new Round(++this.roundId, this.timeToDraw, this.words, this.users, drawingUser);
+        User drawingUser = this.drawingUser();
+        this.round = new Round(++this.roundId, this.timeToDraw, word, this.users, drawingUser);
         return this.round;
     }
 
@@ -143,5 +142,9 @@ public class Room {
 
     public Hashtable<String, Integer> getUserScores() {
         return userScores;
+    }
+
+    public User drawingUser() {
+        return this.users.get(roundId % (this.users.size() == 0 ? 0 : 1));
     }
 }

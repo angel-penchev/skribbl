@@ -2,6 +2,7 @@ package com.tsb.skribbl.controller;
 
 import com.tsb.skribbl.exception.GameHasAlreadyStartedException;
 import com.tsb.skribbl.exception.RoomUserLimitReachedException;
+import com.tsb.skribbl.model.game.DrawingLine;
 import com.tsb.skribbl.model.game.Room;
 import com.tsb.skribbl.model.game.User;
 import com.tsb.skribbl.model.message.BoardMessage;
@@ -76,25 +77,25 @@ public class MainController {
 
     @MessageMapping("/room/{roomId}/chat")
     @SendTo("/topic/room/{roomId}/chat")
-    public ChatMessage chatMapping(
+    public void chatMapping(
             ChatMessage message,
             @DestinationVariable String roomId
     ) {
         Room room = rooms.get(roomId);
-        messagingTemplate.convertAndSend(
-                "/topic/room/" + roomId + "/game",
-                gameService.makeGuess(room, message.getUsername(), message.getMessage())
-        );
+        if (room.getRound() != null) {
+            messagingTemplate.convertAndSend(
+                    "/topic/room/" + roomId + "/chat",
+                    gameService.makeGuess(room, message.getUsername(), message.getMessage()));
+        }
 
-        if (room.getRound().getUsersGuessed() >= room.getRound().getUserScores().size()) {
+
+        if (room.getRound() != null && room.getRound().getUsersGuessed() >= room.getRound().getUserScores().size() - 1) {
             roundTimers.get(roomId).cancel(true);
             messagingTemplate.convertAndSend(
                     "/topic/room/" + roomId + "/game",
                     gameService.roundEnd(room)
             );
         }
-
-        return message;
     }
 
     @MessageMapping("/room/{roomId}/game")
@@ -129,7 +130,7 @@ public class MainController {
                 ScheduledFuture<?> scheduledTask =  scheduler.schedule(task, room.getTimeToDraw(), TimeUnit.SECONDS);
                 this.roundTimers.put(roomId, scheduledTask);
                 scheduler.shutdown();
-                return gameService.roundStart(room);
+                return gameService.roundStart(room, message.getMessage());
         }
 
         return message;
@@ -138,18 +139,18 @@ public class MainController {
     @MessageMapping("/room/{roomId}/board")
     @SendTo("/topic/room/{roomId}/board")
     public BoardMessage boardMapping(@Payload BoardMessage message, @DestinationVariable String roomId) {
-//        if (rooms.get(roomId) != null) {
-//            rooms.get(roomId).getRound().addDrawingLineToCanvas(
-//                    new DrawingLine(
-//                            message.getStartX(),
-//                            message.getStartY(),
-//                            message.getEndX(),
-//                            message.getEndY(),
-//                            message.getColor(),
-//                            message.getWidth()
-//                    )
-//            );
-//        }
+        if (rooms.get(roomId).getRound() != null) {
+            rooms.get(roomId).getRound().addDrawingLineToCanvas(
+                    new DrawingLine(
+                            message.getStartX(),
+                            message.getStartY(),
+                            message.getEndX(),
+                            message.getEndY(),
+                            message.getColor(),
+                            message.getWidth()
+                    )
+            );
+        }
         return message;
     }
 }

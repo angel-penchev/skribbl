@@ -1,49 +1,35 @@
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import TextField from '@material-ui/core/TextField'
 import React from 'react'
 
-const WordSelectPopup = () => {
-    const [open, setOpen] = React.useState(false);
+interface Props {
+    handleClose: (id: number) => any;
+    isDialogOpen: boolean;
+    wordlist: string[];
+}
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
+const WordSelectPopup: React.FC<Props> = ({ handleClose, isDialogOpen, wordlist }) => {
     return (
         <div>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+            <Dialog open={isDialogOpen} onClose={handleClose} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">Pick a word</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        To subscribe to this website, please enter your email address here. We will send updates
-                        occasionally.
-          </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        label="Email Address"
-                        type="email"
-                        fullWidth
-                    />
+                        <Button onClick={() => handleClose(0)} color="primary">
+                            {wordlist[0]}
+                        </Button>
+                        <Button onClick={() => handleClose(1)} color="primary">
+                            {wordlist[1]}
+                        </Button>
+                        <Button onClick={() => handleClose(2)} color="primary">
+                            {wordlist[2]}
+                        </Button>
+                    </DialogContentText>
+
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Cancel
-          </Button>
-                    <Button onClick={handleClose} color="primary">
-                        Subscribe
-          </Button>
-                </DialogActions>
             </Dialog>
         </div>
     )
