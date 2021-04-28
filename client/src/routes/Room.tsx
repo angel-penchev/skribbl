@@ -62,13 +62,14 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                     console.log(message)
                     switch (message.type) {
                         case 'word-select-prompt':
+                            setIsRoundOver(false); // replaceFirst POWER!!!!!
+                            setIsScoreboardDialogOpen(false)
                             if (message.message === username) {
                                 setWordsInDialog(message.wordlist);
                                 setIsWordDialogOpen(true);
                             }
                             break;
                         case 'round-start':
-                            setIsRoundOver(false);
                             setIsScoreboardDialogOpen(false);
                             setDrawingUserName(message.message);
                             if (message.message === username) {

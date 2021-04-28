@@ -120,7 +120,7 @@ public class MainController {
     public void chatMapping(
             ChatMessage message,
             @DestinationVariable String roomId
-    ) {
+    ) throws InterruptedException {
         Room room = rooms.get(roomId);
         if (room.getRound() != null) {
             messagingTemplate.convertAndSend(
@@ -139,6 +139,15 @@ public class MainController {
                     "/topic/room/" + roomId + "/game",
                     gameService.roundEnd(room)
             );
+
+            if (room.getRoundId() < room.getRoundLimit()) {
+                TimeUnit.SECONDS.sleep(5);
+
+                messagingTemplate.convertAndSend(
+                        "/topic/room/" + roomId + "/game",
+                        gameService.wordSelect(room)
+                );
+            }
         }
     }
 
@@ -151,6 +160,7 @@ public class MainController {
         Room room = rooms.get(roomId);
         switch (message.getType()) {
             case "connection":
+                System.out.println(message.getMessage());
                 room.addUser(new User(message.getMessage()));
 
                 if (room.getUserAmount() >= 3) {
