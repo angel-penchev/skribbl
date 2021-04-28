@@ -1,26 +1,30 @@
 package com.tsb.skribbl.model.game;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Random;
 
 public class Round {
-    private final long roundId;
-    private final long startedAt = java.time.Instant.now().getEpochSecond();
-    private final long timeToDraw;
-    private final String word;
-    private final ArrayList<DrawingLine> canvas = new ArrayList<>();
-    private final Hashtable<String, String> userGuesses = new Hashtable<>();
-    private final Hashtable<String, Integer> userScores;
-    private final User drawingUser;
+    private long id;
+    private long startedAt = java.time.Instant.now().getEpochSecond();
+    private long timeToDraw;
+    private String word;
+    private ArrayList<DrawingLine> canvas = new ArrayList<>();
+    private Hashtable<String, String> userGuesses = new Hashtable<>();
+    private Hashtable<String, Integer> userScores;
+    private User drawingUser;
     private int usersGuessed = 0;
 
-    public Round(long roundId, long timeToDraw, String word, ArrayList<User> users, User drawingUser) {
-        this.roundId = roundId;
+    public Round(long id, long timeToDraw, String word, ArrayList<User> users, User drawingUser) {
+        this.id = id;
         this.timeToDraw = timeToDraw;
         this.word = word;
         this.userScores = this.initUserScoresTable(users);
         this.drawingUser = drawingUser;
+    }
+
+    public Round() {
+
     }
 
     private Hashtable<String, Integer> initUserScoresTable(ArrayList<User> users) {
@@ -43,7 +47,7 @@ public class Round {
             return false;
         }
 
-        int score = (int) (this.getEndsAt() - java.time.Instant.now().getEpochSecond());
+        int score = (int) (this.endsAt() - java.time.Instant.now().getEpochSecond());
         this.userScores.replace(username, score);
         usersGuessed++;
         return true;
@@ -56,43 +60,82 @@ public class Round {
         return true;
     }
 
-    public long getRoundId() {
-        return roundId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public long getId() {
+        return id;
     }
 
-    public long getEndsAt() {
+
+    public long endsAt() {
         return this.startedAt + this.timeToDraw;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public long getStartedAt() {
         return startedAt;
     }
 
+    public void setStartedAt(long startedAt) {
+        this.startedAt = startedAt;
+    }
+
     public long getTimeToDraw() {
         return timeToDraw;
+    }
+
+    public void setTimeToDraw(long timeToDraw) {
+        this.timeToDraw = timeToDraw;
     }
 
     public String getWord() {
         return word;
     }
 
+    public void setWord(String word) {
+        this.word = word;
+    }
+
     public ArrayList<DrawingLine> getCanvas() {
         return canvas;
+    }
+
+    public void setCanvas(ArrayList<DrawingLine> canvas) {
+        this.canvas = canvas;
     }
 
     public Hashtable<String, String> getUserGuesses() {
         return userGuesses;
     }
 
+    public void setUserGuesses(Hashtable<String, String> userGuesses) {
+        this.userGuesses = userGuesses;
+    }
+
     public Hashtable<String, Integer> getUserScores() {
         return userScores;
+    }
+
+    public void setUserScores(Hashtable<String, Integer> userScores) {
+        this.userScores = userScores;
     }
 
     public User getDrawingUser() {
         return drawingUser;
     }
 
+    public void setDrawingUser(User drawingUser) {
+        this.drawingUser = drawingUser;
+    }
+
     public int getUsersGuessed() {
         return usersGuessed;
+    }
+
+    public void setUsersGuessed(int usersGuessed) {
+        this.usersGuessed = usersGuessed;
     }
 }

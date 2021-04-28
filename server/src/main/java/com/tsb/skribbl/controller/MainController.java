@@ -1,5 +1,8 @@
 package com.tsb.skribbl.controller;
 
+import com.tsb.skribbl.entity.RoundEntity;
+import com.tsb.skribbl.model.request.SaveRoundRequest;
+import org.apache.commons.io.FilenameUtils;
 import com.tsb.skribbl.exception.GameHasAlreadyStartedException;
 import com.tsb.skribbl.exception.RoomUserLimitReachedException;
 import com.tsb.skribbl.model.game.DrawingLine;
@@ -8,19 +11,27 @@ import com.tsb.skribbl.model.game.User;
 import com.tsb.skribbl.model.message.BoardMessage;
 import com.tsb.skribbl.model.message.ChatMessage;
 import com.tsb.skribbl.model.message.GameMessage;
-import com.tsb.skribbl.model.message.GameWordSelectionMessage;
 import com.tsb.skribbl.model.request.CreateRoomRequest;
 import com.tsb.skribbl.service.GameService;
+import com.tsb.skribbl.service.RoundService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,13 +43,17 @@ import java.util.concurrent.TimeUnit;
 public class MainController {
     public final SimpMessageSendingOperations messagingTemplate;
     private final GameService gameService;
+    private final RoundService roundService;
+
     ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final Hashtable<String, Room> rooms = new Hashtable<>();
     private final Hashtable<String, ScheduledFuture<?>> roundTimers = new Hashtable<>();
+    private static final String imageDirectory = System.getProperty(".") + "/images/";
 
-    public MainController(SimpMessageSendingOperations messagingTemplate, GameService gameService) {
+    public MainController(SimpMessageSendingOperations messagingTemplate, GameService gameService, RoundService roundService) {
         this.messagingTemplate = messagingTemplate;
         this.gameService = gameService;
+        this.roundService = roundService;
     }
 
     @PostMapping("/create-room")
@@ -60,6 +75,31 @@ public class MainController {
     @GetMapping("/{id}")
     public Room getRoomMapping(@PathVariable String id) {
         return rooms.get(id);
+    }
+
+    @RequestMapping(value = "/history", produces = {MediaType.IMAGE_PNG_VALUE, "application/json"})
+    public ResponseEntity<?> uploadImage(@RequestBody SaveRoundRequest saveRoundRequest) {
+        makeDirectoryIfNotExist(imageDirectory);
+
+        RoundEntity roundEntity = new RoundEntity();
+        roundEntity.setWord(saveRoundRequest.getWord());
+        roundEntity.setDrawingUserName(saveRoundRequest.getDrawingUserName());
+        roundService.save(roundEntity);
+
+        Path fileNamePath = Paths.get(imageDirectory, roundEntity.getId().toString());
+        try {
+            Files.write(fileNamePath, saveRoundRequest.getBoard().getBytes());
+            return new ResponseEntity<>(roundEntity.getId().toString(), HttpStatus.CREATED);
+        } catch (IOException ex) {
+            return new ResponseEntity<>("Image is not uploaded", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void makeDirectoryIfNotExist(String imageDirectory) {
+        File directory = new File(imageDirectory);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
     }
 
     @GetMapping("/public-rooms")
@@ -142,8 +182,9 @@ public class MainController {
     @MessageMapping("/room/{roomId}/board")
     @SendTo("/topic/room/{roomId}/board")
     public BoardMessage boardMapping(@Payload BoardMessage message, @DestinationVariable String roomId) {
-        if (rooms.get(roomId).getRound() != null) {
-            rooms.get(roomId).getRound().addDrawingLineToCanvas(
+        Room room = rooms.get(roomId);
+        if (room.getRound() != null) {
+            room.getRound().addDrawingLineToCanvas(
                     new DrawingLine(
                             message.getStartX(),
                             message.getStartY(),

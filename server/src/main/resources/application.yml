@@ -1,0 +1,9 @@
+spring:
+    jpa:
+        hibernate:
+            ddl-auto: create
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+    datasource:
+        url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/skribbl}
+        username: ${SPRING_DATASOURCE_USERNAME:gosho}
+        password: ${SPRING_DATASOURCE_PASSWORD:losho}

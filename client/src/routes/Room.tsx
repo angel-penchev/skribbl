@@ -16,6 +16,9 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
     const [scoreboard, setScoreboard] = useState<Array<any>>([])
     const roomId = location.pathname.split("/").pop()
     const [isGameOver, setIsGameOver] = useState(false)
+    const [isRoundOver, setIsRoundOver] = useState(false)
+    const [canvasPng, setCanvasPng] = useState("")
+    const [drawingUserName, setDrawingUserName] = useState("")
 
     // @ts-ignore
     const username = location.state ? location.state.username : prompt("Please, enter a username", "Gosho");
@@ -36,7 +39,7 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                 <span>{roomId}</span>
             </div>
             <div className="container container-wide">
-                <Board roomId={roomId ?? ''} isUnlocked={isBoardUnlocked} />
+                <Board roomId={roomId ?? ''} isUnlocked={isBoardUnlocked} setCanvasPng={setCanvasPng} isRoundOver={isRoundOver} />
                 <Chat roomId={roomId ?? ''} username={username} />
             </div>
 
@@ -65,6 +68,9 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                             }
                             break;
                         case 'round-start':
+                            setIsRoundOver(false);
+                            setIsScoreboardDialogOpen(false);
+                            setDrawingUserName(message.message);
                             if (message.message === username) {
                                 setIsBoardUnlocked(true);
                             }
@@ -74,9 +80,20 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                         case 'game-end':
                             setIsGameOver(true);
                         case 'round-end':
+                            setIsRoundOver(true);
                             setScoreboard(message.scores);
                             setIsScoreboardDialogOpen(true);
-
+                            fetch('http://localhost:8080/api/create-room', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    word: message.message,
+                                    drawingUserName: drawingUserName,
+                                    board: canvasPng
+                                }),
+                            })
                     }
                 }}
                 ref={(socketClient: any) => {

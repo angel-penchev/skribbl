@@ -1,9 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import SockJsClient from 'react-stomp';
 
 interface Props {
     roomId: string;
     isUnlocked: boolean;
+    setCanvasPng: any;
+    isRoundOver: boolean;
 }
 
 interface Line {
@@ -16,7 +18,7 @@ interface Line {
     emit: boolean;
 }
 
-const Board: React.FC<Props> = ({ roomId, isUnlocked: isLocked }) => {
+const Board: React.FC<Props> = ({ roomId, isUnlocked: isLocked, setCanvasPng, isRoundOver }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const colorsRef = useRef<HTMLDivElement>(null)
     const sliderRef = useRef<HTMLInputElement>(null)
@@ -24,8 +26,13 @@ const Board: React.FC<Props> = ({ roomId, isUnlocked: isLocked }) => {
 
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d')
-
     const colors = document.getElementsByClassName('color')
+
+    useEffect(() => {
+        if (isRoundOver) {
+            setCanvasPng(canvas?.toDataURL())
+        }
+    }, [isRoundOver])
 
     const current = {
         x: 0,

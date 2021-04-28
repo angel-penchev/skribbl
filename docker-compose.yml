@@ -12,7 +12,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/skribbl
       - SPRING_DATASOURCE_USERNAME=gosho
       - SPRING_DATASOURCE_PASSWORD=losho
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
 
   client:
     container_name: client
