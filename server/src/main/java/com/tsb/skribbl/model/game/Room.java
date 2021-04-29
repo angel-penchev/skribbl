@@ -145,6 +145,6 @@ public class Room {
     }
 
     public User drawingUser() {
-        return this.users.get(roundId % (this.users.size() == 0 ? 0 : 1));
+        return this.users.get(roundId % (this.users.size() == 0 ? 1 : this.users.size()));
     }
 }

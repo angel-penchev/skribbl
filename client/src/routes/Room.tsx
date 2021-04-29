@@ -58,6 +58,10 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                 onDisconnect={() => {
                     history.push('/');
                 }}
+
+
+
+
                 onMessage={(message: any) => {
                     console.log(message)
                     switch (message.type) {
@@ -84,7 +88,7 @@ const Room: React.FC<RouteComponentProps> = ({location}) => {
                             setIsRoundOver(true);
                             setScoreboard(message.scores);
                             setIsScoreboardDialogOpen(true);
-                            fetch('http://localhost:8080/api/create-room', {
+                            fetch('http://localhost:8080/api/history', {
                                 method: 'POST',
                                 headers: {
                                     'Content-type': 'application/json',

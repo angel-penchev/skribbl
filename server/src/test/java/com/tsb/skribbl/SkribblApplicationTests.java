@@ -1,41 +1,93 @@
 package com.tsb.skribbl;
 
+import com.tsb.skribbl.model.game.DrawingLine;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.simp.stomp.StompFrameHandler;
+import org.springframework.messaging.simp.stomp.StompHeaders;
+import org.springframework.messaging.simp.stomp.StompSession;
+import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+import org.springframework.web.socket.messaging.WebSocketStompClient;
+import org.springframework.web.socket.sockjs.client.SockJsClient;
+import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
-@SpringBootTest
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SkribblApplicationTests {
-
-//	@Autowired
-//	private MockMvc mvc;
-
-	@Test
-	void contextLoads() {
-	}
-
-//	@Test
-//	void testCallWithCorrectRole() throws Exception {
-//		String[] services = readServices();
-//		String enrollToken = assertAuthenticate("user", "password", true);
-//		String deskToken = assertAuthenticate("desk1", "парола", true);
+//	@LocalServerPort
+//	private Integer port;
 //
-//		assertEnroll(services[0], 1, enrollToken, true); //1
-//		assertEnroll(services[1], 1, enrollToken, true); //2
-//		assertEnroll(services[0], 2, enrollToken, true); //3
-//		assertEnroll(services[0], 3, enrollToken, true); //4
-//		assertEnroll(services[2], 1, enrollToken, true); //5
-//		assertEnroll(services[1], 2, enrollToken, true); //6
+//	private WebSocketStompClient webSocketStompClient;
 //
-//		String[] onlyTwo = new String[] {services[0], services[2]};
-//
-//		assertCall(onlyTwo, 2,services[0], 1, deskToken, true);
-//		assertCall(new String[0], 2, null, -1, deskToken, false);
-//		assertCall(new String[] {UUID.randomUUID().toString()}, 2,null, -1, deskToken, false);
-//		assertCall(new String[] {services[1]}, 3, services[1],2, deskToken, true);
-//		assertEnroll(services[1], 2, enrollToken, true); //7
-//		assertCall(new String[] {services[1], services[2]}, 4, services[2], 5, deskToken, true);
+//	@BeforeEach
+//	public void setup() {
+//		ArrayList<?> arrayList = new ArrayList<>();
+//		this.webSocketStompClient = new WebSocketStompClient(new SockJsClient(
+//				List.of(new WebSocketTransport(new StandardWebSocketClient()))));
 //	}
-
+//
+//	@Test
+//	public void verifyGreetingIsReceived() throws Exception {
+//
+//		BlockingQueue<String> blockingQueue = new ArrayBlockingQueue(1);
+//
+//		webSocketStompClient.setMessageConverter(new StringMessageConverter());
+//
+//		StompSession session = webSocketStompClient
+//				.connect(getWsPath(), new StompSessionHandlerAdapter() {})
+//				.get(1, SECONDS);
+//
+//		session.subscribe("/topic/greetings", new StompFrameHandler() {
+//
+//			@Override
+//			public Type getPayloadType(StompHeaders headers) {
+//				return String.class;
+//			}
+//
+//			@Override
+//			public void handleFrame(StompHeaders headers, Object payload) {
+//				System.out.println("Received message: " + payload);
+//				blockingQueue.add((String) payload);
+//			}
+//		});
+//
+//		session.send("/room/{roomId}/board", new DrawingLine(
+//				0,
+//				0,
+//				1,
+//				2,
+//				"black",
+//				2
+//		));
+//
+//		assertEquals(new DrawingLine(
+//				0,
+//				0,
+//				1,
+//				2,
+//				"black",
+//				2
+//		), blockingQueue.poll(1, SECONDS));
+//	}
+//
+//	private void assertEquals(DrawingLine s, String poll) {
+//	}
+//
+//	private String getWsPath() {
+//		return String.format("ws://localhost:%d/ws-endpoint", port);
+//	}
 }

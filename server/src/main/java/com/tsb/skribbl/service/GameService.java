@@ -78,7 +78,7 @@ public class GameService {
         boolean isGameEnd = room.getRoundId() >= room.getRoundLimit();
         return new GameRoundEndMessage(
                 isGameEnd ? "game-end" : "round-end",
-                "",
+                "room.getRound().getWord()",
                 room.getUserScores()
         );
     }
